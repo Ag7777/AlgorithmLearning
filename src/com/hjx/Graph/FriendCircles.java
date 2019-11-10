@@ -14,8 +14,11 @@ Explanation:The 0th and 1st students are direct friends, so they are in a friend
 The 2nd student himself is in a friend circle. So return 2.
  */
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class FriendCircles {
-    public int findCircleNum(int[][] M) {
+    public int findCircleNumDFS(int[][] M) {
         if(M.length == 0 || M[0].length == 0) return 0;
         int res = 0;
         int[] used = new int[M.length];
@@ -35,6 +38,51 @@ public class FriendCircles {
             if(M[index][i] == 1 && used[i] == 0){
                 DFS(M, used, i);
             }
+        }
+    }
+
+    //Union find
+    public int findCircleNum(int[][] M)  {
+        if(M.length == 0 || M[0].length == 0) return 0;
+        UnionFindSet unionFindSet = new UnionFindSet(M.length);
+        for(int i = 0; i < M.length; i ++){
+            for(int j = i + 1; j < M.length; j ++){
+                if(M[i][j] == 1)
+                    unionFindSet.union(i,j);
+            }
+        }
+        Set<Integer> cycle = new HashSet<Integer>();
+        for(int i = 0; i < M.length; i ++){
+            cycle.add(unionFindSet.find(i));
+        }
+        return cycle.size();
+    }
+
+    class UnionFindSet{
+        int[] parent;
+        int[] rank;
+
+        UnionFindSet(int n){
+            parent = new int[n];
+            rank = new int[n];
+        }
+
+        public int find(int x){
+            if(parent[x] == 0) return x;
+            return parent[x] = find(parent[x]);
+        }
+
+        public boolean union(int x, int y){
+            int rootx = find(x);
+            int rooty = find(y);
+            if(rootx == rooty) return false;
+            if(rank[rootx] < rank[rooty]) parent[rootx] = rooty;
+            if(rank[rootx] > rank[rooty]) parent[rooty] = rootx;
+            else{
+                parent[rootx] = rooty;
+                rank[rooty] ++;
+            }
+            return true;
         }
     }
 

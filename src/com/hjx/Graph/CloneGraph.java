@@ -4,47 +4,69 @@ Given a reference of a node in a connected undirected graph,
 return a deep copy (clone) of the graph.
 Each node in the graph contains a val (int) and a list (List[GraphNode]) of its neighbors.
  */
-import java.util.List;
-import java.util.Queue;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 
-class GraphNode {
-    public int val;
-    public List<GraphNode> neighbors;
-    GraphNode(){}
-    GraphNode(int val){
-        this.val = val;
-    }
-}
+
 public class CloneGraph {
-    public GraphNode cloneGraph(GraphNode node) {
-        if(node == null) return null;
-        Set<GraphNode> done = new HashSet<GraphNode>();
-        Queue<GraphNode> q = new LinkedList<GraphNode>();
-        Map<GraphNode, GraphNode> map = new HashMap<GraphNode, GraphNode>();
-        q.offer(node);
-        while (!q.isEmpty()){
-            GraphNode n = q.remove();
-            if(done.contains(n)) continue;
-            done.add(n);
 
+    class Node{
+        public int val;
+        public List<Node> neighbors;
+        public Node(int val){
+            this.val = val;
+        }
+        public Node(int val, List<Node> neighbors){
+            this.val = val;
+            this.neighbors = neighbors;
+        }
+    }
+
+    //BFS
+    public Node cloneGraphBFS(Node node) {
+        Map<Node, Node> map = new HashMap<Node, Node>();
+        Queue<Node> q = new LinkedList<Node>();
+        Set<Node> set = new HashSet<Node>();
+        q.add(node);
+        while(!q.isEmpty()){
+            Node n = q.remove();
+            if(set.contains(n)) continue;
             if(!map.containsKey(n)){
-                map.put(n, new GraphNode(n.val));
+                map.put(n, new Node(n.val, new ArrayList<Node>()));
             }
-            GraphNode tmp = map.get(n);
-            for(GraphNode no : n.neighbors){
-                if(!map.containsKey(no)){
-                    map.put(no, new GraphNode(no.val));
+            Node n1 = map.get(n);
+            for(Node nei : n.neighbors){
+                if(!map.containsKey(nei)){
+                    map.put(nei, new Node(nei.val, new ArrayList<Node>()));
                 }
-                q.offer(no);
-                tmp.neighbors.add(map.get(no));
+                n1.neighbors.add(map.get(nei));
+                q.add(nei);
             }
+            set.add(n);
         }
         return map.get(node);
+    }
+
+    //DFS
+    public Node cloneGraph(Node node){
+        if(node == null) return null;
+        Map<Node, Node> map = new HashMap<Node, Node>();
+        Set<Node> set = new HashSet<Node>();
+        Node n1 = new Node(node.val, new ArrayList<Node>());
+        map.put(node, n1);
+        DFS(node, n1, map, set);
+        return n1;
+    }
+
+    public void DFS(Node node, Node n1, Map<Node, Node> map, Set<Node> set){
+        if(set.contains(node)) return;
+        set.add(node);
+        for(Node n : node.neighbors){
+            if(!map.containsKey(n)){
+                map.put(n, new Node(n.val, new ArrayList<Node>()));
+            }
+            n1.neighbors.add(map.get(n));
+            DFS(n, map.get(n), map, set);
+        }
 
     }
 }
